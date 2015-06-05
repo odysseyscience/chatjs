@@ -1,0 +1,25 @@
+{
+  "name": "chatjs-commonjs",
+  "version": "1.0.0",
+  "description": "Fork of ChatJs that is ready for CommonJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/odysseyscience/chatjs.git"
+  },
+  "keywords": [
+    "chatjs"
+  ],
+  "author": "Sean Adkinson <sean.adkinson@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/odysseyscience/chatjs/issues"
+  },
+  "homepage": "https://github.com/odysseyscience/chatjs",
+  "peerDependencies": {
+    "jquery": "*"
+  }
+}
