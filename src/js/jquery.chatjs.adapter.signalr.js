@@ -3,6 +3,10 @@
 /// <reference path="jquery.chatjs.adapter.servertypes.ts"/>
 /// <reference path="jquery.chatjs.adapter.ts"/>
 
+
+var $ = require('jquery');
+
+
 var SignalRServerAdapter = (function () {
     function SignalRServerAdapter(chatHubServer) {
         this.hubServer = chatHubServer;
@@ -161,3 +165,11 @@ var SignalRAdapter = (function () {
     return SignalRAdapter;
 })();
 //# sourceMappingURL=jquery.chatjs.adapter.signalr.js.map
+
+
+module.exports = {
+    SignalRServerAdapter: SignalRServerAdapter,
+    SignalRClientAdapter: SignalRClientAdapter,
+    SignalRAdapterOptions: SignalRAdapterOptions,
+    SignalRAdapter: SignalRAdapter
+};

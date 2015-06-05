@@ -5,6 +5,14 @@
 /// <reference path="jquery.chatjs.friendswindow.ts"/>
 
 
+var $ = require('jquery'),
+    FriendsWindow = require('./jquery.chatjs.friendswindow'),
+    ChatFriendsWindowState = FriendsWindow.ChatFriendsWindowState,
+    ChatFriendsWindowOptions = FriendsWindow.ChatFriendsWindowOptions,
+    ChatPmWindow = require('./jquery.chatjs.pmwindow'),
+    ChatPmWindowOptions = ChatPmWindow.ChatPmWindowOptions;
+
+
 var ChatControllerOptions = (function () {
     function ChatControllerOptions() {
     }
@@ -264,3 +272,10 @@ $.chat = function (options) {
     return chat;
 };
 //# sourceMappingURL=jquery.chatjs.controller.js.map
+
+
+module.exports = {
+    ChatControllerOptions: ChatControllerOptions,
+    ChatJsState: ChatJsState,
+    ChatController: ChatController
+};

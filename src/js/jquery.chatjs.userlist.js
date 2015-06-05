@@ -5,6 +5,11 @@
 /// <reference path="jquery.chatjs.window.ts"/>
 /// <reference path="jquery.chatjs.messageboard.ts"/>
 
+
+var $ = require('jquery'),
+    ChatJsUtils = require('./jquery.chatjs.utils');
+
+
 var UserListOptions = (function () {
     function UserListOptions() {
     }
@@ -94,3 +99,9 @@ $.fn.userList = function (options) {
     return this;
 };
 //# sourceMappingURL=jquery.chatjs.userlist.js.map
+
+
+module.exports = {
+    UserListOptions: UserListOptions,
+    UserList: UserList
+};

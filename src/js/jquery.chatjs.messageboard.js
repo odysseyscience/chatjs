@@ -3,33 +3,22 @@
 /// <reference path="jquery.chatjs.utils.ts"/>
 /// <reference path="jquery.chatjs.adapter.ts"/>
 
-interface JQuery {
-    messageBoard: (options: MessageBoardOptions) => JQuery;
-}
 
-class MessageBoardOptions {
-    adapter: IAdapter;
+var $ = require('jquery'),
+    ChatJsUtils = require('./jquery.chatjs.utils'),
+    ServerTypes = require('./jquery.chatjs.adapter.servertypes'),
+    ChatMessageInfo = ServerTypes.ChatMessageInfo;
 
-    // current user id
-    userId: number;
-    // in case this is a PM board, this is the other user id
-    otherUserId: number;
-    // in case this is a room board, this is the room id
-    roomId: number;
-    // in case this is a conversation board, this is the conversation id
-    conversationId: number;
-    // text displayed while the other user is typing
-    typingText: string;
-    // whether to play sound when message arrives
-    playSound: boolean;
-    // path to the chatjs folder
-    chatJsContentPath: string
-    height: number;
-    newMessage: (message: ChatMessageInfo) => void;
-}
 
-class MessageBoard {
-    constructor(jQuery: JQuery, options: MessageBoardOptions) {
+var MessageBoardOptions = (function () {
+    function MessageBoardOptions() {
+    }
+    return MessageBoardOptions;
+})();
+
+var MessageBoard = (function () {
+    function MessageBoard(jQuery, options) {
+        var _this = this;
         this.$el = jQuery;
 
         var defaultOptions = new MessageBoardOptions();
@@ -37,7 +26,8 @@ class MessageBoard {
         defaultOptions.playSound = true;
         defaultOptions.height = 100;
         defaultOptions.chatJsContentPath = "/chatjs/";
-        defaultOptions.newMessage = (message: ChatMessageInfo) => {};
+        defaultOptions.newMessage = function (message) {
+        };
 
         this.options = $.extend({}, defaultOptions, options);
 
@@ -53,88 +43,84 @@ class MessageBoard {
         this.$textBox = $("<textarea />").attr("rows", "1").addClass("chat-window-text-box").appendTo($windowTextBoxWrapper);
 
         this.$textBox.autosize({
-            callback: ta => {
-                var messagesHeight = this.options.height - $(ta).outerHeight();
-                ChatJsUtils.setOuterHeight(this.$messagesWrapper, messagesHeight);
+            callback: function (ta) {
+                var messagesHeight = _this.options.height - $(ta).outerHeight();
+                ChatJsUtils.setOuterHeight(_this.$messagesWrapper, messagesHeight);
             }
         });
 
         this.$textBox.val(this.$textBox.val());
 
-        this.options.adapter.client.onTypingSignalReceived((typingSignal: ChatTypingSignalInfo) => {
-
+        this.options.adapter.client.onTypingSignalReceived(function (typingSignal) {
             var shouldProcessTypingSignal = false;
 
-            if (this.options.otherUserId) {
+            if (_this.options.otherUserId) {
                 // it's a PM message board.
-                shouldProcessTypingSignal = typingSignal.UserToId == this.options.userId && typingSignal.UserFrom.Id == this.options.otherUserId;
-            } else if (this.options.roomId) {
+                shouldProcessTypingSignal = typingSignal.UserToId == _this.options.userId && typingSignal.UserFrom.Id == _this.options.otherUserId;
+            } else if (_this.options.roomId) {
                 // it's a room message board
-                shouldProcessTypingSignal = typingSignal.RoomId == this.options.roomId && typingSignal.UserFrom.Id != this.options.userId;
-            } else if (this.options.conversationId) {
+                shouldProcessTypingSignal = typingSignal.RoomId == _this.options.roomId && typingSignal.UserFrom.Id != _this.options.userId;
+            } else if (_this.options.conversationId) {
                 // it's a conversation message board
-                shouldProcessTypingSignal = typingSignal.ConversationId == this.options.conversationId && typingSignal.UserFrom.Id != this.options.userId;
+                shouldProcessTypingSignal = typingSignal.ConversationId == _this.options.conversationId && typingSignal.UserFrom.Id != _this.options.userId;
             }
             if (shouldProcessTypingSignal)
-                this.showTypingSignal(typingSignal.UserFrom);
-
+                _this.showTypingSignal(typingSignal.UserFrom);
         });
 
-        this.options.adapter.client.onMessagesChanged((message: ChatMessageInfo) => {
-
+        this.options.adapter.client.onMessagesChanged(function (message) {
             var shouldProcessMessage = false;
 
-            if (this.options.otherUserId) {
+            if (_this.options.otherUserId) {
                 // it's a PM message board.
-                shouldProcessMessage = (message.UserFromId == this.options.userId && message.UserToId == this.options.otherUserId) || (message.UserFromId == this.options.otherUserId && message.UserToId == this.options.userId);
-            } else if (this.options.roomId) {
+                shouldProcessMessage = (message.UserFromId == _this.options.userId && message.UserToId == _this.options.otherUserId) || (message.UserFromId == _this.options.otherUserId && message.UserToId == _this.options.userId);
+            } else if (_this.options.roomId) {
                 // it's a room message board
-                shouldProcessMessage = message.RoomId == this.options.roomId;
-            } else if (this.options.conversationId) {
+                shouldProcessMessage = message.RoomId == _this.options.roomId;
+            } else if (_this.options.conversationId) {
                 // it's a conversation message board
-                shouldProcessMessage = message.ConversationId == this.options.conversationId;
+                shouldProcessMessage = message.ConversationId == _this.options.conversationId;
             }
 
             if (shouldProcessMessage) {
-                this.addMessage(message);
-                if (message.UserFromId != this.options.userId) {
-                    if (this.options.playSound)
-                        this.playSound();
+                _this.addMessage(message);
+                if (message.UserFromId != _this.options.userId) {
+                    if (_this.options.playSound)
+                        _this.playSound();
                 }
-                this.options.newMessage(message);
+                _this.options.newMessage(message);
             }
         });
 
         // gets the message history
-        this.options.adapter.server.getMessageHistory(this.options.roomId, this.options.conversationId, this.options.otherUserId, messages => {
-
+        this.options.adapter.server.getMessageHistory(this.options.roomId, this.options.conversationId, this.options.otherUserId, function (messages) {
             for (var i = 0; i < messages.length; i++) {
-                this.addMessage(messages[i], false);
+                _this.addMessage(messages[i], null, false);
             }
 
-            this.adjustScroll();
+            _this.adjustScroll();
 
-            this.$textBox.keypress((e) => {
+            _this.$textBox.keypress(function (e) {
                 // if a send typing signal is in course, remove it and create another
-                if (this.sendTypingSignalTimeout == undefined) {
-                    this.sendTypingSignalTimeout = setTimeout(() => {
-                        this.sendTypingSignalTimeout = undefined;
+                if (_this.sendTypingSignalTimeout == undefined) {
+                    _this.sendTypingSignalTimeout = setTimeout(function () {
+                        _this.sendTypingSignalTimeout = undefined;
                     }, 3000);
-                    this.sendTypingSignal();
+                    _this.sendTypingSignal();
                 }
 
                 if (e.which == 13) {
                     e.preventDefault();
-                    if (this.$textBox.val()) {
-                        this.sendMessage(this.$textBox.val());
-                        this.$textBox.val('').trigger("autosize.resize");
+                    if (_this.$textBox.val()) {
+                        _this.sendMessage(_this.$textBox.val());
+                        _this.$textBox.val('').trigger("autosize.resize");
                     }
                 }
             });
         });
     }
-
-    showTypingSignal(user: ChatUserInfo) {
+    MessageBoard.prototype.showTypingSignal = function (user) {
+        var _this = this;
         /// <summary>Adds a typing signal to this window. It means the other user is typing</summary>
         /// <param FullName="user" type="Object">the other user info</param>
         if (this.$typingSignal)
@@ -143,48 +129,51 @@ class MessageBoard {
         this.$messagesWrapper.append(this.$typingSignal);
         if (this.typingSignalTimeout)
             clearTimeout(this.typingSignalTimeout);
-        this.typingSignalTimeout = setTimeout(() => {
-            this.removeTypingSignal();
+        this.typingSignalTimeout = setTimeout(function () {
+            _this.removeTypingSignal();
         }, 5000);
 
         this.adjustScroll();
-    }
+    };
 
-    removeTypingSignal() {
+    MessageBoard.prototype.removeTypingSignal = function () {
         /// <summary>Remove the typing signal, if it exists</summary>
         if (this.$typingSignal)
             this.$typingSignal.remove();
         if (this.typingSignalTimeout)
             clearTimeout(this.typingSignalTimeout);
-    }
+    };
 
-    adjustScroll() {
+    MessageBoard.prototype.adjustScroll = function () {
         this.$messagesWrapper[0].scrollTop = this.$messagesWrapper[0].scrollHeight;
-    }
+    };
 
-    sendTypingSignal() {
+    MessageBoard.prototype.sendTypingSignal = function () {
         /// <summary>Sends a typing signal to the other user</summary>
-        this.options.adapter.server.sendTypingSignal(this.options.roomId, this.options.conversationId, this.options.otherUserId, () => {});
-    }
+        this.options.adapter.server.sendTypingSignal(this.options.roomId, this.options.conversationId, this.options.otherUserId, function () {
+        });
+    };
 
-    sendMessage(messageText) {
+    MessageBoard.prototype.sendMessage = function (messageText) {
         /// <summary>Sends a message to the other user</summary>
         /// <param FullName="messageText" type="String">Message being sent</param>
-        var generateGuidPart = () => (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+        var generateGuidPart = function () {
+            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+        };
 
         var clientGuid = (generateGuidPart() + generateGuidPart() + '-' + generateGuidPart() + '-' + generateGuidPart() + '-' + generateGuidPart() + '-' + generateGuidPart() + generateGuidPart() + generateGuidPart());
 
         var message = new ChatMessageInfo();
         message.UserFromId = this.options.userId;
         message.Message = messageText;
-        message.ClientGuid = clientGuid;
 
-        this.addMessage(message);
+        this.addMessage(message, clientGuid);
 
-        this.options.adapter.server.sendMessage(this.options.roomId, this.options.conversationId, this.options.otherUserId, messageText, clientGuid, () => {});
-    }
+        this.options.adapter.server.sendMessage(this.options.roomId, this.options.conversationId, this.options.otherUserId, messageText, clientGuid, function () {
+        });
+    };
 
-    playSound() {
+    MessageBoard.prototype.playSound = function () {
         /// <summary>Plays a notification sound</summary>
         /// <param FullName="fileFullName" type="String">The file path without extension</param>
         var $soundContainer = $("#soundContainer");
@@ -199,13 +188,13 @@ class MessageBoard {
         $("<embed/>").attr("src", mp3FileName).attr("autostart", "true").attr("loop", "false").appendTo($audioTag);
 
         $audioTag.appendTo($soundContainer);
-    }
+    };
 
-    focus() {
+    MessageBoard.prototype.focus = function () {
         this.$textBox.focus();
-    }
+    };
 
-    addMessage(message: ChatMessageInfo, scroll?: boolean) {
+    MessageBoard.prototype.addMessage = function (message, clientGuid, scroll) {
         /// <summary>
         ///     Adds a message to the board. This method is called both when the current user or the other user is sending a
         ///     message
@@ -279,8 +268,8 @@ class MessageBoard {
             $("p[data-val-client-guid='" + message.ClientGuid + "']").removeClass("temp-message").removeAttr("data-val-client-guid");
         } else {
             var $messageP = $("<p/>").text(message.Message);
-            if (message.ClientGuid)
-                $messageP.attr("data-val-client-guid", message.ClientGuid).addClass("temp-message");
+            if (clientGuid)
+                $messageP.attr("data-val-client-guid", clientGuid).addClass("temp-message");
 
             linkify($messageP);
             emotify($messageP);
@@ -303,7 +292,7 @@ class MessageBoard {
 
                 // add image
                 var $img = $("<img/>").addClass("profile-picture").appendTo($gravatarWrapper);
-                this.options.adapter.server.getUserInfo(message.UserFromId, user => {
+                this.options.adapter.server.getUserInfo(message.UserFromId, function (user) {
                     $img.attr("src", decodeURI(user.ProfilePictureUrl));
                 });
             }
@@ -311,23 +300,23 @@ class MessageBoard {
 
         if (scroll)
             this.adjustScroll();
-    }
+    };
+    return MessageBoard;
+})();
 
-    $el: JQuery;
-    options: MessageBoardOptions;
-    $messagesWrapper: JQuery;
-    $textBox: JQuery;
-    $typingSignal: JQuery;
-    typingSignalTimeout: number;
-    sendTypingSignalTimeout: number;
-}
-
-$.fn.messageBoard = function(options: MessageBoardOptions) {
+$.fn.messageBoard = function (options) {
     if (this.length) {
-        this.each(function() {
+        this.each(function () {
             var data = new MessageBoard($(this), options);
             $(this).data('messageBoard', data);
         });
     }
     return this;
+};
+//# sourceMappingURL=jquery.chatjs.messageboard.js.map
+
+
+module.exports = {
+    MessageBoardOptions: MessageBoardOptions,
+    MessageBoard: MessageBoard
 };

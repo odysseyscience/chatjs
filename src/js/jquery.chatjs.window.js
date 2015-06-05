@@ -1,6 +1,10 @@
 ﻿/// <reference path="../../Scripts/Typings/jquery/jquery.d.ts"/>
 /// <reference path="jquery.chatjs.interfaces.ts"/>
 
+
+var $ = require('jquery');
+
+
 var ChatWindowOptions = (function () {
     function ChatWindowOptions() {
     }
@@ -117,3 +121,9 @@ $.chatWindow = function (options) {
     return chatWindow;
 };
 //# sourceMappingURL=jquery.chatjs.window.js.map
+
+
+module.exports = {
+    ChatWindowOptions: ChatWindowOptions,
+    ChatWindow: ChatWindow
+};

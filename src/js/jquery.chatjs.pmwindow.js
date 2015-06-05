@@ -5,6 +5,14 @@
 /// <reference path="jquery.chatjs.window.ts"/>
 /// <reference path="jquery.chatjs.messageboard.ts"/>
 
+
+var $ = require('jquery'),
+    ChatWindow = require('./jquery.chatjs.window'),
+    ChatWindowOptions = ChatWindow.ChatWindowOptions,
+    MessageBoard = require('./jquery.chatjs.messageboard'),
+    MessageBoardOptions = MessageBoard.MessageBoardOptions;
+
+
 var PmWindowInfo = (function () {
     function PmWindowInfo() {
     }
@@ -93,3 +101,11 @@ $.chatPmWindow = function (options) {
     return pmWindow;
 };
 //# sourceMappingURL=jquery.chatjs.pmwindow.js.map
+
+
+module.exports = {
+    PmWindowInfo: PmWindowInfo,
+    PmWindowState: PmWindowState,
+    ChatPmWindowOptions: ChatPmWindowOptions,
+    ChatPmWindow: ChatPmWindow
+};

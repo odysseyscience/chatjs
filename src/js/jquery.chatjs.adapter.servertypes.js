@@ -44,3 +44,13 @@ var ChatRoomListChangedInfo = (function () {
     return ChatRoomListChangedInfo;
 })();
 //# sourceMappingURL=jquery.chatjs.adapter.servertypes.js.map
+
+module.exports = {
+    ChatMessageInfo: ChatMessageInfo,
+    UserStatusType: UserStatusType,
+    ChatUserInfo: ChatUserInfo,
+    ChatRoomInfo: ChatRoomInfo,
+    ChatTypingSignalInfo: ChatTypingSignalInfo,
+    ChatUserListChangedInfo: ChatUserListChangedInfo,
+    ChatRoomListChangedInfo: ChatRoomListChangedInfo
+};
