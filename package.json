@@ -1,6 +1,6 @@
 {
   "name": "chatjs-commonjs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Fork of ChatJs that is ready for CommonJS",
   "main": "index.js",
   "scripts": {
